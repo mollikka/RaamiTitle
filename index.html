@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
+  <title>Raamititle</title>
+  <script src="https://code.jquery.com/jquery-3.0.0.min.js">
+  </script>
+  <style>
+    html, body {
+      overflow: hidden;
+      width   : 100%;
+      height  : 100%;
+      margin  : 0;
+      padding : 0;
+    }
+    .l {
+      width: 38px;
+      height: 38px;
+      text-align: center;
+      position: absolute;
+    }
+  </style>
+
+</head>
+<body>
+  <h1 id="raamititle">JAAKKORAAMI</h1>
+  <script>
+    var target = $("#raamititle");
+
+    var lEl = [];
+    function split(target) {
+      var letters = target.html();
+      target.html("");
+      for (i = 0; i<letters.length; i++) {
+        console.log(letters[i]);
+        var newEl = $($.parseHTML("<div class='l'>"+letters[i]+"</div>"));
+        newEl.css({left: 38*i});
+        target.append(newEl);
+        lEl.push(newEl);
+      }
+    }
+    split(target);
+
+    var el1 = $("#raamititle :nth-child(2)");
+    var el2 = $("#raamititle :nth-child(10)");
+    console.log(el1);
+
+    function swap(element1, element2) {
+      var parent = $(element1).parent();
+      listWidth = parent.innerWidth();
+      el1_X = element1.position().left;
+      el2_X = element2.position().left;
+      el1_deltaX = el2_X - el1_X;
+      el2_deltaX = el1_X - el2_X;
+
+      element1.animate({
+        "left": "+=" + el1_deltaX
+        }, 1000, function() {element1.css({left: el2_X});}
+      );
+      element2.animate({
+        "left": "+=" + el2_deltaX
+        }, 1000, function() {element2.css({left: el1_X});}
+      );
+    };
+
+    /**
+    http://stackoverflow.com/a/10134261/3417477
+     * Returns a random number between min and max
+     */
+    function getRandomArbitary (min, max) {
+        return Math.random() * (max - min) + min;
+    }
+    function getRandomInt (min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    /** */
+
+    function randomSwap() {
+      var num1 = getRandomInt(0,10);
+      var num2 = getRandomInt(0,9);
+      if (num2 >= num1) {num2+=1;}
+
+      swap(lEl[num1], lEl[num2]);
+    }
+    setInterval(randomSwap, 2000);
+  </script>
+</body>
+</html>
