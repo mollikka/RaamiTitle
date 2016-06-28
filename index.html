@@ -13,12 +13,13 @@
       margin  : 0;
       padding : 0;
     }
-    .l {
+    #raamititle { /* style for the title */
+      font-size: 250%;
     }
-    .good {
+    .good { /* style for letters in the right place */
       color: red;
     }
-    .bad {
+    .bad { /* style for letters in the wrong place */
       color: black;
     }
   </style>
@@ -38,6 +39,9 @@
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
     /** */
+
+    var stepTime = 200; //how long to wait between swaps
+    var victoryTime = 4000; //how long to wait after completing an anagram
 
     var target = $("#raamititle");
 
@@ -136,19 +140,36 @@
         current_order[wrong_places[s2]] = swp;
       } else {
         //nothing to sort, pick a new target
-        window.setTimeout(function() {
+        setTimeout(function() {
           pick_order(wanted_order)
-        }, 1000);
+        }, victoryTime);
       }
     }
 
     assembleWord(letters, target, current_order, wanted_order);
+
+    var mouseOnTitle = false;
+    target.on("mouseenter", function() {
+      mouseOnTitle = true;
+    });
+    target.on("mouseleave", function() {
+      mouseOnTitle = false;
+    });
+
     function prog_step() {
-      sort_step(letters, target, current_order, wanted_order);
-      assembleWord(letters, target, current_order, wanted_order);
-      setTimeout(prog_step, 100);
+      if (mouseOnTitle) {
+        for (var i = 0; i < current_order.length; i++) {
+          current_order[i] = original_order[i];
+        }
+        assembleWord(letters, target, current_order, original_order);
+      } else {
+        sort_step(letters, target, current_order, wanted_order);
+        assembleWord(letters, target, current_order, wanted_order);
+      }
+      setTimeout(prog_step, stepTime);
     };
     prog_step();
+
   </script>
 </body>
 </html>
