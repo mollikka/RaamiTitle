@@ -14,55 +14,19 @@
       padding : 0;
     }
     .l {
-      width: 38px;
-      height: 38px;
-      text-align: center;
-      position: absolute;
+    }
+    .good {
+      color: red;
+    }
+    .bad {
+      color: black;
     }
   </style>
 
 </head>
 <body>
-  <h1 id="raamititle">JAAKKORAAMI</h1>
+  <h1 id="raamititle"></h1>
   <script>
-    var target = $("#raamititle");
-
-    var lEl = [];
-    function split(target) {
-      var letters = target.html();
-      target.html("");
-      for (i = 0; i<letters.length; i++) {
-        console.log(letters[i]);
-        var newEl = $($.parseHTML("<div class='l'>"+letters[i]+"</div>"));
-        newEl.css({left: 38*i});
-        target.append(newEl);
-        lEl.push(newEl);
-      }
-    }
-    split(target);
-
-    var el1 = $("#raamititle :nth-child(2)");
-    var el2 = $("#raamititle :nth-child(10)");
-    console.log(el1);
-
-    function swap(element1, element2) {
-      var parent = $(element1).parent();
-      listWidth = parent.innerWidth();
-      el1_X = element1.position().left;
-      el2_X = element2.position().left;
-      el1_deltaX = el2_X - el1_X;
-      el2_deltaX = el1_X - el2_X;
-
-      element1.animate({
-        "left": "+=" + el1_deltaX
-        }, 1000, function() {element1.css({left: el2_X});}
-      );
-      element2.animate({
-        "left": "+=" + el2_deltaX
-        }, 1000, function() {element2.css({left: el1_X});}
-      );
-    };
-
     /**
     http://stackoverflow.com/a/10134261/3417477
      * Returns a random number between min and max
@@ -75,14 +39,116 @@
     }
     /** */
 
-    function randomSwap() {
-      var num1 = getRandomInt(0,10);
-      var num2 = getRandomInt(0,9);
-      if (num2 >= num1) {num2+=1;}
+    var target = $("#raamititle");
 
-      swap(lEl[num1], lEl[num2]);
+    var letters = "JAAKKO JUHANI RAAMI";
+
+    var anagrams =  [
+      "MAKKARIIN JUHO AJAA",
+      "MIKRON KAIJA JAUHAA",
+      "MARKKINOI HAJUA AJA",
+      "MAKKARIIN JAAHA UJO",
+      "MAHARAJA OUIJA KINK",
+      "MARIJUANA KHOJA KAI",
+      "HAJJI KORU KAMAAINA",
+      "MURJAANI HAKI JAKOA",
+      "KIMARAN JAUHAA JOKI",
+      "RIMAN HAKKAAJIA JUO",
+      "JAA MURHAAJA NOKKII",
+      "AIKONA JAMJAR HAIKU",
+      "AHUMARIA KAKI JONJA",
+      "HIRAO KUJA NAKAJIMA",
+      "ARAKAKI HOUMAN JAJI",
+      "JANIAH OKAJIMA KURA",
+      "JANKA ARAUJO HAKIMI"
+    ];
+
+    var anagram_to_order = function (letters, anagram) {
+      var order = [];
+      for (var i = 0; i < letters.length; i++) {
+        for (var l = 0; l < letters.length; l++) {
+          if (anagram[i] == letters[l]
+             && order.indexOf(l) == -1) {
+            order.push(l);
+            break;
+          }
+        }
+      }
+      return order;
     }
-    setInterval(randomSwap, 2000);
+
+    possible_orders = [];
+    for (var i = 0; i < anagrams.length-1; i++) {
+      possible_orders.push(anagram_to_order(letters,anagrams[i]));
+    }
+
+    var original_order = anagram_to_order(letters, letters);
+    var current_order = anagram_to_order(letters, letters);
+
+    var wanted_order = [];
+    var j = getRandomInt(0,possible_orders.length-1);
+    for (i = 0; i < current_order.length; i++) {
+      wanted_order.push(possible_orders[j][i]);
+    }
+
+    var assembleWord = function(letters, target, order, wanted) {
+      target.empty();
+      for (i = 0; i < order.length; i++) {
+        if (order[i] == wanted[i]) {
+          target.append(  "<span class='l good'>"
+                          +letters[order[i]]
+                          +"</span>");
+        } else {
+          target.append(  "<span class='l bad'>"
+                          +letters[order[i]]
+                          +"</span>");
+        }
+      }
+    };
+
+    var pick_order = function(wanted_order) {
+      var nextOrder = getRandomInt(0, possible_orders.length-2);
+      //dont pick the same order twice
+      if (JSON.stringify(possible_orders[nextOrder]) == JSON.stringify(wanted_order)) { nextOrder += 1; }
+      
+      //copy the chosen target
+      //wanted_order = possible_orders[nextOrder];
+      for (i = 0; i < wanted_order.length; i++) {
+        wanted_order[i] = possible_orders[nextOrder][i];
+      }
+    }
+
+    var sort_step = function(letters, target, current_order, wanted_order) {
+      var wrong_places = [];
+      for (i = 0; i < wanted_order.length; i++) {
+        if (wanted_order[i] != current_order[i]) {
+          wrong_places.push(i);
+        }
+      }
+      if (wrong_places.length > 0) {
+        //something to sort
+        var s1 = getRandomInt(0, wrong_places.length-1);
+        var s2 = getRandomInt(0, wrong_places.length-2);
+        if (s2 >= s1) {s2+=1;}
+
+        var swp = current_order[wrong_places[s1]];
+        current_order[wrong_places[s1]] = current_order[wrong_places[s2]];
+        current_order[wrong_places[s2]] = swp;
+      } else {
+        //nothing to sort, pick a new target
+        window.setTimeout(function() {
+          pick_order(wanted_order)
+        }, 1000);
+      }
+    }
+
+    assembleWord(letters, target, current_order, wanted_order);
+    function prog_step() {
+      sort_step(letters, target, current_order, wanted_order);
+      assembleWord(letters, target, current_order, wanted_order);
+      setTimeout(prog_step, 100);
+    };
+    prog_step();
   </script>
 </body>
 </html>
