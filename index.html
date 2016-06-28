@@ -138,11 +138,10 @@
         var swp = current_order[wrong_places[s1]];
         current_order[wrong_places[s1]] = current_order[wrong_places[s2]];
         current_order[wrong_places[s2]] = swp;
+        return true;
       } else {
         //nothing to sort, pick a new target
-        setTimeout(function() {
-          pick_order(wanted_order)
-        }, victoryTime);
+        return false;
       }
     }
 
@@ -157,16 +156,23 @@
     });
 
     function prog_step() {
+      var sorted = false;
       if (mouseOnTitle) {
         for (var i = 0; i < current_order.length; i++) {
           current_order[i] = original_order[i];
         }
         assembleWord(letters, target, current_order, original_order);
       } else {
-        sort_step(letters, target, current_order, wanted_order);
+        sorted = !sort_step(letters, target, current_order, wanted_order);
         assembleWord(letters, target, current_order, wanted_order);
       }
-      setTimeout(prog_step, stepTime);
+
+      if (sorted) {
+        pick_order(wanted_order)
+        setTimeout(prog_step, victoryTime);
+      } else {
+        setTimeout(prog_step, stepTime);
+      }
     };
     prog_step();
 
