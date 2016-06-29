@@ -145,6 +145,30 @@
       }
     }
 
+    var sort_step_efficient = function(letters, target, current_order, wanted_order) {
+      var wrong_places = [];
+      for (i = 0; i < wanted_order.length; i++) {
+        if (wanted_order[i] != current_order[i]) {
+          wrong_places.push(i);
+        }
+      }
+      if (wrong_places.length > 0) {
+        //something to sort
+        var s1 = getRandomInt(0, wrong_places.length-1);
+        var s2 = current_order.indexOf(wrong_places[s1]);
+
+        var swp = current_order[wrong_places[s1]];
+        current_order[wrong_places[s1]] = current_order[s2];
+        current_order[s2] = swp;
+        return true;
+      } else {
+        //nothing to sort, pick a new target
+        return false;
+      }
+    }
+
+
+
     assembleWord(letters, target, current_order, wanted_order);
 
     var mouseOnTitle = false;
@@ -159,8 +183,9 @@
       var sorted = false;
       if (mouseOnTitle) {
         for (var i = 0; i < current_order.length; i++) {
-          current_order[i] = original_order[i];
+          wanted_order[i] = original_order[i];
         }
+        sorted = !sort_step_efficient(letters, target, current_order, wanted_order);
         assembleWord(letters, target, current_order, original_order);
       } else {
         sorted = !sort_step(letters, target, current_order, wanted_order);
