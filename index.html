@@ -172,6 +172,7 @@
     assembleWord(letters, target, current_order, wanted_order);
 
     var mouseOnTitle = false;
+    var revealOriginal = false;
     target.on("mouseenter", function() {
       mouseOnTitle = true;
     });
@@ -182,6 +183,10 @@
     function prog_step() {
       var sorted = false;
       if (mouseOnTitle) {
+        revealOriginal = true;
+      }
+
+      if (revealOriginal) {
         for (var i = 0; i < current_order.length; i++) {
           wanted_order[i] = original_order[i];
         }
@@ -192,8 +197,12 @@
         assembleWord(letters, target, current_order, wanted_order);
       }
 
+      if (sorted && !mouseOnTitle) {
+        revealOriginal = false;
+      }
+
       if (sorted) {
-        pick_order(wanted_order)
+        pick_order(wanted_order);
         setTimeout(prog_step, victoryTime);
       } else {
         setTimeout(prog_step, stepTime);
